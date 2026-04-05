@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  --font-sans: 'Montserrat', sans-serif;
+  --font-display: 'Montserrat', sans-serif;
+
+  /* Deep Red & Black Theme */
+  --background: 0 0% 5%;
+  --foreground: 0 0% 98%;
+  
+  --primary: 358 75% 59%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 0 0% 98%;
+
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 65%;
+
+  --accent: 358 65% 25%;
+  --accent-foreground: 0 0% 98%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 0 0% 20%;
+  --input: 0 0% 20%;
+  --ring: 358 75% 59%;
+
+  --card: 0 0% 0%;
+  --card-foreground: 0 0% 98%;
+
+  --radius: 0.75rem;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+
+    /* ✅ ADD THIS BACK (your original good UI) */
+    background: radial-gradient(circle at top, #6B1D1D 0%, #2A0F0F 40%, #050505 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* ✅ FIX selection (Tailwind v4 safe way) */
+  ::selection {
+    background: hsl(var(--primary) / 0.3);
+    color: white;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: white;
+}
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+  
+  .glass-input {
+    @apply bg-white/5 border-white/10 text-white placeholder:text-white/30;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  }
+}
