@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
-import { Car, User, Hash } from "lucide-react";
+import { User, Hash } from "lucide-react";
 import { motion } from "framer-motion";
 
 const checkInSchema = z.object({
@@ -46,22 +46,36 @@ export default function CheckIn() {
 
   const form = useForm({
     resolver: zodResolver(checkInSchema),
-    defaultValues: { vehicleNumber: "", ownerName: "" },
+    defaultValues: {
+      vehicleNumber: "",
+      ownerName: "",
+      vehicleType: "",
+      slotId: "",
+    },
   });
 
   const selectedType = form.watch("vehicleType");
 
+  // ✅ FIXED FILTER
   const availableSlots =
     slots?.filter(
       (s) =>
-        s.status === "Free" &&
-        (!selectedType || s.slotType === selectedType)
+        s.status === "available" &&
+        (!selectedType ||
+          s.slotType?.toLowerCase() === selectedType?.toLowerCase())
     ) || [];
 
   function onSubmit(values) {
-    checkIn.mutate(values, {
-      onSuccess: () => form.reset(),
-    });
+    checkIn.mutate(
+      {
+        vehicle_number: values.vehicleNumber,
+        driver_name: values.ownerName,
+        slot_id: values.slotId,
+      },
+      {
+        onSuccess: () => form.reset(),
+      }
+    );
   }
 
   return (
@@ -86,6 +100,7 @@ export default function CheckIn() {
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6"
             >
+              {/* Vehicle + Owner */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
@@ -134,7 +149,9 @@ export default function CheckIn() {
                 />
               </div>
 
+              {/* Type + Slot */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* ✅ VEHICLE TYPE FIXED */}
                 <FormField
                   control={form.control}
                   name="vehicleType"
@@ -145,7 +162,7 @@ export default function CheckIn() {
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value || ""}
                       >
                         <FormControl>
                           <SelectTrigger className="glass-input">
@@ -174,6 +191,7 @@ export default function CheckIn() {
                   )}
                 />
 
+                {/* ✅ SLOT FIXED */}
                 <FormField
                   control={form.control}
                   name="slotId"
@@ -183,8 +201,10 @@ export default function CheckIn() {
                         Assign Slot
                       </FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value?.toString()}
+                        onValueChange={(value) =>
+                          field.onChange(Number(value))
+                        }
+                        value={field.value ? field.value.toString() : ""}
                         disabled={!selectedType}
                       >
                         <FormControl>
@@ -198,6 +218,7 @@ export default function CheckIn() {
                             />
                           </SelectTrigger>
                         </FormControl>
+
                         <SelectContent className="bg-neutral-900 border-white/10 text-white max-h-60">
                           {availableSlots.length === 0 ? (
                             <div className="p-2 text-sm text-white/50 text-center">
@@ -221,11 +242,12 @@ export default function CheckIn() {
                 />
               </div>
 
+              {/* Submit */}
               <div className="pt-4">
                 <Button
                   type="submit"
                   disabled={checkIn.isPending}
-                  className="w-full h-12 bg-primary hover:bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.01]"
+                  className="w-full h-12 bg-primary hover:bg-red-600 text-white font-bold rounded-xl shadow-lg"
                 >
                   {checkIn.isPending
                     ? "Generating Ticket..."

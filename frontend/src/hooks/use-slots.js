@@ -4,11 +4,15 @@ export function useSlots() {
   return useQuery({
     queryKey: ["slots"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5003/api/slots", {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to fetch slots");
-      return res.json();
+      const res = await fetch("http://localhost:5003/api/slots");
+      const data = await res.json();
+
+      return data.map((slot) => ({
+        id: slot.id,
+        slotNumber: slot.slot_number,
+        status: slot.status, // "available"
+        slotType: slot.type,
+      }));
     },
   });
 }

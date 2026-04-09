@@ -3,42 +3,26 @@ import { useToast } from "./use-toast";
 
 export function useCheckIn() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (data) => {
-      const res = await fetch("http://localhost:5003/api/checkin", {
+      const res = await fetch("http://localhost:5003/api/vehicles/checkin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
+        body: JSON.stringify({
+          vehicle_number: data.vehicleNumber,
+          driver_name: data.ownerName,
+          slot_id: data.slotId,
+        }),
       });
 
-      if (!res.ok) {
-        if (res.status === 409)
-          throw new Error("Slot occupied or vehicle already checked in");
-        throw new Error("Check-in failed");
-      }
+      if (!res.ok) throw new Error("Check-in failed");
 
       return res.json();
     },
 
-    onSuccess: (data) => {
-      toast({
-        title: "Check-in Successful",
-        description: `Ticket #${data?.ticket?.id}`,
-      });
-
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["slots"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
-    },
-
-    onError: (error) => {
-      toast({
-        title: "Check-in Failed",
-        description: error.message,
-        variant: "destructive",
-      });
     },
   });
 }
@@ -85,7 +69,7 @@ export function useCheckOut() {
 
   return useMutation({
     mutationFn: async (data) => {
-      const res = await fetch("http://localhost:5003/api/checkout", {
+      const res = await fetch("http://localhost:5003/api/vehicles/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -121,11 +105,10 @@ export function usePayments() {
   return useQuery({
     queryKey: ["payments"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5003/api/payments", {
-        credentials: "include",
-      });
+      const res = await fetch("http://localhost:5003/api/payments");
 
       if (!res.ok) throw new Error("Failed to fetch payments");
+
       return res.json();
     },
   });

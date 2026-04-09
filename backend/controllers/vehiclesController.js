@@ -1,20 +1,22 @@
 const db = require("../db/knex");
 
 exports.checkInVehicle = async (req, res) => {
-  const { vehicle_number, driver_name } = req.body;
+  const { vehicle_number, driver_name, slot_id } = req.body;
+
+  const trx = await db.transaction();
 
   try {
-    
-    const slot = await db("parking_slots")
-      .where({ status: "available" })
+    const slot = await trx("parking_slots")
+      .where({ id: slot_id, status: "available" })
+      .forUpdate()
       .first();
 
     if (!slot) {
-      return res.status(400).json({ message: "No slots available" });
+      await trx.rollback();
+      return res.status(400).json({ message: "Selected slot not available" });
     }
 
-    
-    const [vehicle] = await db("vehicles")
+    const [vehicle] = await trx("vehicles")
       .insert({
         vehicle_number,
         driver_name,
@@ -23,13 +25,22 @@ exports.checkInVehicle = async (req, res) => {
       })
       .returning("*");
 
-    
-    await db("parking_slots")
+    await trx("parking_slots")
       .where({ id: slot.id })
       .update({ status: "occupied" });
 
-    res.json({ vehicle, slot });
+    await trx.commit();
+
+    res.json({
+      success: true,
+      vehicle,
+      slot: {
+        ...slot,
+        status: "occupied",
+      },
+    });
   } catch (err) {
+    await trx.rollback();
     res.status(500).json({ error: err.message });
   }
 };
@@ -37,46 +48,47 @@ exports.checkInVehicle = async (req, res) => {
 exports.checkOutVehicle = async (req, res) => {
   const { vehicle_id } = req.body;
 
+  const trx = await db.transaction();
+
   try {
-    
-    const vehicle = await db("vehicles")
+    const vehicle = await trx("vehicles")
       .where({ id: vehicle_id })
       .first();
 
     if (!vehicle) {
+      await trx.rollback();
       return res.status(404).json({ message: "Vehicle not found" });
     }
 
     const exit_time = new Date();
 
-    
     const duration = Math.ceil(
-      (new Date(exit_time) - new Date(vehicle.entry_time)) / (1000 * 60 * 60)
+      (exit_time - new Date(vehicle.entry_time)) / (1000 * 60 * 60)
     );
-    
-    const rate = 20; 
+
+    const rate = 20;
     const amount = duration * rate;
 
-    
-    await db("payments").insert({
+    await trx("payments").insert({
       vehicle_id,
       amount,
       duration,
       payment_time: exit_time,
     });
 
-
-    await db("vehicles")
+    await trx("vehicles")
       .where({ id: vehicle_id })
       .update({ exit_time });
 
-    
-    await db("parking_slots")
+    await trx("parking_slots")
       .where({ id: vehicle.slot_id })
       .update({ status: "available" });
 
-    res.json({ message: "Checkout complete", amount });
+    await trx.commit();
+
+    res.json({ success: true, amount });
   } catch (err) {
+    await trx.rollback();
     res.status(500).json({ error: err.message });
   }
 };

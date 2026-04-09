@@ -1,99 +1,52 @@
 import { Layout } from "../components/Layout";
 import { usePayments } from "../hooks/use-operations";
-import { format } from "date-fns";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../components/ui/table";
 
 export default function Payments() {
-  const { data: payments, isLoading } = usePayments();
+  const { data: payments, isLoading, error } = usePayments();
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold text-white mb-2">
-            Transaction History
-          </h2>
-          <p className="text-white/50">All processed payments.</p>
-        </div>
+      <div className="max-w-4xl mx-auto space-y-6">
+        <h2 className="text-3xl text-white font-bold">Payments</h2>
 
-        <div className="glass-card rounded-2xl overflow-hidden">
-          <Table>
-            <TableHeader className="bg-white/5">
-              <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-white/70">
-                  Payment ID
-                </TableHead>
-                <TableHead className="text-white/70">
-                  Ticket ID
-                </TableHead>
-                <TableHead className="text-white/70">
-                  Amount
-                </TableHead>
-                <TableHead className="text-white/70">
-                  Method
-                </TableHead>
-                <TableHead className="text-white/70">
-                  Time
-                </TableHead>
-              </TableRow>
-            </TableHeader>
+        {/* Loading */}
+        {isLoading && (
+          <p className="text-white/50">Loading payments...</p>
+        )}
 
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center py-8 text-white/50"
-                  >
-                    Loading transactions...
-                  </TableCell>
-                </TableRow>
-              ) : payments?.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center py-8 text-white/50"
-                  >
-                    No payments found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                payments?.map((payment) => (
-                  <TableRow
-                    key={payment.id}
-                    className="border-white/5 hover:bg-white/5"
-                  >
-                    <TableCell className="font-mono text-white/60">
-                      #{payment.id}
-                    </TableCell>
-                    <TableCell className="text-white">
-                      #{payment.ticketId}
-                    </TableCell>
-                    <TableCell className="font-bold text-emerald-400">
-                      ${payment.amount}
-                    </TableCell>
-                    <TableCell className="text-white/80">
-                      {payment.method.methodName}
-                    </TableCell>
-                    <TableCell className="text-white/60">
-                      {format(
-                        new Date(payment.paymentTime),
-                        "MMM dd, HH:mm"
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+        {/* Error */}
+        {error && (
+          <p className="text-red-500">Failed to load payments</p>
+        )}
+
+        {/* Data */}
+        {!isLoading && payments?.length === 0 && (
+          <p className="text-white/50">No payments found</p>
+        )}
+
+        {payments?.map((p) => (
+          <div
+            key={p.id}
+            className="p-4 bg-white/5 rounded-xl border border-white/10"
+          >
+            <div className="flex justify-between">
+              <span className="text-white font-bold">
+                {p.vehicle_number}
+              </span>
+              <span className="text-primary font-bold">
+                ₹{p.amount}
+              </span>
+            </div>
+
+            <div className="text-white/60 text-sm mt-1">
+              Duration: {p.duration} hr
+            </div>
+
+            <div className="text-white/40 text-xs mt-1">
+              {new Date(p.payment_time).toLocaleString()}
+            </div>
+          </div>
+        ))}
       </div>
     </Layout>
   );

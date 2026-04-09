@@ -1,6 +1,8 @@
 import { Layout } from "../components/Layout";
 import { useState } from "react";
-import { useSearchTickets, useCheckOut } from "../hooks/use-operations";
+import { useCheckOut } from "../hooks/use-operations";
+import { usePreviewAmount } from "../hooks/usePreviewAmount";
+import { useActiveVehicles } from "../hooks/useActiveVehicles";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import {
@@ -15,26 +17,36 @@ import { format } from "date-fns";
 
 export default function CheckOut() {
   const [search, setSearch] = useState("");
-  const { data: tickets, isLoading } = useSearchTickets(search);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+
+  const { data: vehicles, isLoading } = useActiveVehicles();
+  const { data: preview } = usePreviewAmount(selectedVehicle?.id);
   const checkOut = useCheckOut();
-  const [selectedTicket, setSelectedTicket] = useState(null);
 
   const handleCheckOut = () => {
-    if (!selectedTicket) return;
+    if (!selectedVehicle) return;
 
     checkOut.mutate(
       {
-        ticketId: selectedTicket.id,
-        methodId: 1,
+        vehicle_id: selectedVehicle.id,
       },
       {
         onSuccess: () => {
           setSearch("");
-          setSelectedTicket(null);
+          setSelectedVehicle(null);
         },
       }
     );
   };
+
+  // ✅ SAFE FILTER (prevents crash)
+  const filteredVehicles = Array.isArray(vehicles)
+    ? vehicles.filter((v) =>
+        v.vehicle_number
+          ?.toLowerCase()
+          .includes(search.toLowerCase())
+      )
+    : [];
 
   return (
     <Layout>
@@ -48,56 +60,57 @@ export default function CheckOut() {
           </p>
         </div>
 
+        {/* Search */}
         <div className="glass-card p-6 rounded-2xl">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by Vehicle Number or Ticket ID..."
+              placeholder="Search by Vehicle Number..."
               className="glass-input pl-12 h-14 text-lg"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Results */}
+          {/* Vehicles List */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-white/80 px-1">
-              Active Tickets
+              Active Vehicles
             </h3>
 
             {isLoading ? (
-              <div className="text-white/40 text-sm">Searching...</div>
-            ) : tickets?.length === 0 ? (
+              <div className="text-white/40 text-sm">Loading...</div>
+            ) : filteredVehicles.length === 0 ? (
               <div className="glass-card p-8 rounded-2xl text-center text-white/30 border-dashed">
-                No active tickets found
+                No active vehicles found
               </div>
             ) : (
-              tickets?.map((ticket) => (
+              filteredVehicles.map((vehicle) => (
                 <motion.div
-                  key={ticket.id}
+                  key={vehicle.id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  onClick={() => setSelectedTicket(ticket)}
+                  onClick={() => setSelectedVehicle(vehicle)}
                   className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                    selectedTicket?.id === ticket.id
+                    selectedVehicle?.id === vehicle.id
                       ? "bg-primary/20 border-primary/50 shadow-lg shadow-primary/10"
                       : "bg-white/5 border-white/10 hover:bg-white/10"
                   }`}
                 >
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-bold text-white">
-                      {ticket.vehicle.vehicleNumber}
+                      {vehicle.vehicle_number}
                     </span>
                     <span className="text-xs bg-white/10 px-2 py-1 rounded text-white/60">
-                      #{ticket.id}
+                      #{vehicle.id}
                     </span>
                   </div>
 
                   <div className="flex justify-between text-sm text-white/50">
-                    <span>{ticket.vehicle.vehicleType}</span>
-                    <span>Slot: {ticket.slot.slotNumber}</span>
+                    <span>Car</span>
+                    <span>Slot: {vehicle.slot_id}</span>
                   </div>
                 </motion.div>
               ))
@@ -106,7 +119,7 @@ export default function CheckOut() {
 
           {/* Payment Panel */}
           <AnimatePresence mode="wait">
-            {selectedTicket ? (
+            {selectedVehicle ? (
               <motion.div
                 key="details"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -129,38 +142,44 @@ export default function CheckOut() {
                 </div>
 
                 <div className="space-y-4 mb-8">
+                  {/* Check-in time */}
                   <div className="flex justify-between items-center">
                     <span className="text-white/60 flex items-center gap-2">
                       <Clock className="w-4 h-4" /> Check-in Time
                     </span>
                     <span className="text-white font-mono">
-                      {format(
-                        new Date(selectedTicket.checkInTime),
-                        "HH:mm dd/MM"
-                      )}
+                      {selectedVehicle?.entry_time
+                        ? format(
+                            new Date(selectedVehicle.entry_time),
+                            "HH:mm dd/MM"
+                          )
+                        : "-"}
                     </span>
                   </div>
 
+                  {/* Rate */}
                   <div className="flex justify-between items-center">
                     <span className="text-white/60 flex items-center gap-2">
                       <CreditCard className="w-4 h-4" /> Rate
                     </span>
                     <span className="text-white font-mono">
-                      $10.00/hr
+                      ₹20/hr
                     </span>
                   </div>
 
+                  {/* Amount */}
                   <div className="p-4 bg-white/5 rounded-xl flex justify-between items-center mt-4">
                     <span className="text-lg font-medium text-white">
                       Total Amount
                     </span>
                     <span className="text-2xl font-bold text-primary">
-                      $15.00
+                      ₹{preview?.amount ?? 0}
                     </span>
                   </div>
 
+                  {/* Duration */}
                   <p className="text-xs text-center text-white/30">
-                    *Estimated based on current time
+                    Duration: {preview?.duration ?? 0} hrs
                   </p>
                 </div>
 
@@ -182,7 +201,7 @@ export default function CheckOut() {
                 className="flex flex-col items-center justify-center text-white/30 h-64 border-2 border-dashed border-white/10 rounded-2xl"
               >
                 <AlertCircle className="w-12 h-12 mb-4 opacity-50" />
-                <p>Select a ticket to proceed</p>
+                <p>Select a vehicle to proceed</p>
               </motion.div>
             )}
           </AnimatePresence>

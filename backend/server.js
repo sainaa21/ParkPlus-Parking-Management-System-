@@ -5,7 +5,12 @@ const db = require("./db/knex");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // frontend URL
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 db.raw("SELECT 1+1 AS result")
@@ -16,10 +21,10 @@ app.get("/", (req, res) => {
   res.send("API is running");
 });
 
-app.use("/slots", require("./routes/slots"));
-app.use("/vehicles", require("./routes/vehicles"));
-app.use("/payments", require("./routes/payments"));
-app.use("/employees", require("./routes/employees"));
+app.use("/api/slots", require("./routes/slots"));
+app.use("/api/vehicles", require("./routes/vehicles"));
+app.use("/api/payments", require("./routes/payments"));
+app.use("/api/employees", require("./routes/employees"));
 
 const PORT = process.env.PORT || 5003;
 
