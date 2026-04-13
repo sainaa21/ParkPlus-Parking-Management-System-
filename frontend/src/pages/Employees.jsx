@@ -1,4 +1,3 @@
-import { Layout } from "../components/Layout";
 import { useEmployees, useCreateEmployee } from "../hooks/use-employees";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,7 +54,6 @@ export default function Employees() {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -178,6 +176,5 @@ export default function Employees() {
           )}
         </div>
       </div>
-    </Layout>
   );
 }

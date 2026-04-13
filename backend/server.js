@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const db = require("./db/knex");
+const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboard");
 const employeeRoutes = require("./routes/employees");
 const reportsRoutes = require("./routes/reports");
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
 app.use("/api/reports", reportsRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api", authRoutes);
 app.use("/api/slots", require("./routes/slots"));
 app.use("/api/vehicles", require("./routes/vehicles"));
 app.use("/api/payments", require("./routes/payments"));

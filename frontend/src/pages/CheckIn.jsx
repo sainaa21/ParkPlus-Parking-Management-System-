@@ -1,4 +1,3 @@
-import { Layout } from "../components/Layout";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -56,7 +55,7 @@ export default function CheckIn() {
 
   const selectedType = form.watch("vehicleType");
 
-  // ✅ FIXED FILTER
+  
   const availableSlots =
     slots?.filter(
       (s) =>
@@ -79,7 +78,6 @@ export default function CheckIn() {
   }
 
   return (
-    <Layout>
       <div className="max-w-2xl mx-auto space-y-8">
         <div>
           <h2 className="text-3xl font-bold text-white mb-2">
@@ -258,6 +256,5 @@ export default function CheckIn() {
           </Form>
         </motion.div>
       </div>
-    </Layout>
   );
 }

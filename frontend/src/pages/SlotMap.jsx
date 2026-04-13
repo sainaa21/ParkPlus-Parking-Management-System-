@@ -1,4 +1,3 @@
-import { Layout } from "../components/Layout";
 import { useSlots } from "../hooks/use-slots";
 import { cn } from "../lib/utils";
 import { Car, Bike, Truck, Accessibility } from "lucide-react";
@@ -28,7 +27,6 @@ export default function SlotMap() {
   const slotTypes = ["All", ...(new Set(slots?.map((s) => s.slotType) || []))];
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -135,6 +133,5 @@ export default function SlotMap() {
           </div>
         )}
       </div>
-    </Layout>
   );
 }

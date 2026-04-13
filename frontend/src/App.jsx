@@ -15,19 +15,67 @@ import ManageSlots from "./pages/ManageSlots";
 import Employees from "./pages/Employees";
 import NotFound from "./pages/not-found";
 
+import { Layout } from "./components/Layout"; 
+
 function Router() {
   return (
     <Switch>
+      {/* LOGIN (NO SIDEBAR) */}
       <Route path="/" component={Login} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/map" component={SlotMap} />
-      <Route path="/checkin" component={CheckIn} />
-      <Route path="/checkout" component={CheckOut} />
-      <Route path="/payments" component={Payments} />
-      <Route path="/reports" component={Reports} />
-      <Route path="/slots" component={ManageSlots} />
-      <Route path="/employees" component={Employees} />
-      <Route component={NotFound} />
+
+      {/* ALL OTHER ROUTES WITH SIDEBAR */}
+      
+      <Route path="/dashboard">
+        <Layout>
+          <Dashboard />
+        </Layout>
+      </Route>
+
+      <Route path="/map">
+        <Layout>
+          <SlotMap />
+        </Layout>
+      </Route>
+
+      <Route path="/checkin">
+        <Layout>
+          <CheckIn />
+        </Layout>
+      </Route>
+
+      <Route path="/checkout">
+        <Layout>
+          <CheckOut />
+        </Layout>
+      </Route>
+
+      <Route path="/payments">
+        <Layout>
+          <Payments />
+        </Layout>
+      </Route>
+
+      <Route path="/reports">
+        <Layout>
+          <Reports />
+        </Layout>
+      </Route>
+
+      <Route path="/slots">
+        <Layout>
+          <ManageSlots />
+        </Layout>
+      </Route>
+
+      <Route path="/employees">
+        <Layout>
+          <Employees />
+        </Layout>
+      </Route>
+
+      <Route>
+        <NotFound />
+      </Route>
     </Switch>
   );
 }

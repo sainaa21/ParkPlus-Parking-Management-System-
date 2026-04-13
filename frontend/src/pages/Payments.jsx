@@ -1,11 +1,9 @@
-import { Layout } from "../components/Layout";
 import { usePayments } from "../hooks/use-operations";
 
 export default function Payments() {
   const { data: payments, isLoading, error } = usePayments();
 
   return (
-    <Layout>
       <div className="max-w-4xl mx-auto space-y-6">
         <h2 className="text-3xl text-white font-bold">Payments</h2>
 
@@ -48,6 +46,5 @@ export default function Payments() {
           </div>
         ))}
       </div>
-    </Layout>
   );
 }

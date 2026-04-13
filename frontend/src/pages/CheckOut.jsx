@@ -1,4 +1,3 @@
-import { Layout } from "../components/Layout";
 import { useState } from "react";
 import { useCheckOut } from "../hooks/use-operations";
 import { usePreviewAmount } from "../hooks/usePreviewAmount";
@@ -49,7 +48,6 @@ export default function CheckOut() {
     : [];
 
   return (
-    <Layout>
       <div className="space-y-8 max-w-4xl mx-auto">
         <div>
           <h2 className="text-3xl font-bold text-white mb-2">
@@ -207,6 +205,5 @@ export default function CheckOut() {
           </AnimatePresence>
         </div>
       </div>
-    </Layout>
   );
 }

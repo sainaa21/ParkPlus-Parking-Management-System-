@@ -1,4 +1,3 @@
-import { Layout } from "../components/Layout";
 import { StatsCard } from "../components/StatsCard";
 import { useDashboard } from "../hooks/use-dashboard"; 
 import {
@@ -38,7 +37,6 @@ export default function Dashboard() {
 
   if (isLoading) {
     return (
-      <Layout>
         <div className="animate-pulse space-y-8">
           <div className="h-8 w-48 bg-white/10 rounded-lg"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -47,12 +45,10 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-      </Layout>
     );
   }
 
   return (
-    <Layout>
       <div className="space-y-8">
         <div>
           <h2 className="text-3xl font-bold text-white mb-2">
@@ -133,6 +129,5 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </Layout>
   );
 }

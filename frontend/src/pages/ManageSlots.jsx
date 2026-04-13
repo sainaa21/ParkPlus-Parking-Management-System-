@@ -1,4 +1,3 @@
-import { Layout } from "../components/Layout";
 import {
   useSlots,
   useCreateSlot,
@@ -98,7 +97,6 @@ export default function ManageSlots() {
   };
 
   return (
-    <Layout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -261,6 +259,5 @@ export default function ManageSlots() {
           </Table>
         </div>
       </div>
-    </Layout>
   );
 }

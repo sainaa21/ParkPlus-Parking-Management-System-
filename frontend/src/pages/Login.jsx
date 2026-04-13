@@ -15,7 +15,7 @@ import {
 import { motion } from "framer-motion";
 
 const loginSchema = z.object({
-  username: z.string().min(1, "Username is required"),
+  email: z.string().min(1, "Email is required"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -24,7 +24,7 @@ export default function Login() {
 
   const form = useForm({
     resolver: zodResolver(loginSchema),
-    defaultValues: { username: "", password: "" },
+    defaultValues: { email: "", password: "" },
   });
 
   function onSubmit(values) {
@@ -64,7 +64,7 @@ export default function Login() {
             >
               <FormField
                 control={form.control}
-                name="username"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -72,7 +72,7 @@ export default function Login() {
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                         <Input
                           {...field}
-                          placeholder="Username"
+                          placeholder="Email"
                           className="pl-12 h-14 bg-white/5 border-white/10 text-white rounded-xl focus:border-primary/50 focus:ring-primary/20 transition-all placeholder:text-white/20"
                         />
                       </div>
