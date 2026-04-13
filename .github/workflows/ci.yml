@@ -2,9 +2,11 @@ name: CI Pipeline
 
 on:
 push:
-branches: [ main ]
+branches:
+- main
 pull_request:
-branches: [ main ]
+branches:
+- main
 
 jobs:
 build:
@@ -45,9 +47,9 @@ steps:
       cd backend
       npx knex migrate:latest
     env:
-      DATABASE_URL: postgres://postgres:password@localhost:5432/parking_db
+      DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/parking_db
 
-  - name: Start Backend (Test)
+  - name: Start Backend
     run: |
       cd backend
       node server.js &
