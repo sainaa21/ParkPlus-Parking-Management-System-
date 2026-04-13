@@ -46,8 +46,11 @@ jobs:
           cd backend
           npx knex migrate:latest
         env:
-          DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/parking_db
-
+          DB_HOST: 127.0.0.1
+          DB_USER: postgres
+          DB_PASSWORD: password
+          DB_NAME: parking_db
+          DB_PORT: 5432
       - name: Start Backend
         run: |
           cd backend
