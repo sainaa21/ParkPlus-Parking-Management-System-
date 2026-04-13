@@ -1,67 +1,65 @@
 name: CI Pipeline v2
 
 on:
-push:
-branches:
-- main
-pull_request:
-branches:
-- main
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-```
-services:
-  postgres:
-    image: postgres:15
-    env:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: parking_db
-    ports:
-      - 5432:5432
-    options: >-
-      --health-cmd="pg_isready -U postgres"
-      --health-interval=10s
-      --health-timeout=5s
-      --health-retries=5
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: parking_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
-steps:
-  - name: Checkout Code
-    uses: actions/checkout@v3
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-  - name: Setup Node
-    uses: actions/setup-node@v3
-    with:
-      node-version: 18
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-  - name: Install Backend Dependencies
-    run: |
-      cd backend
-      npm install
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm install
 
-  - name: Run Migrations
-    run: |
-      cd backend
-      npx knex migrate:latest
-    env:
-      DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/parking_db
+      - name: Run Migrations
+        run: |
+          cd backend
+          npx knex migrate:latest
+        env:
+          DATABASE_URL: postgres://postgres:password@127.0.0.1:5432/parking_db
 
-  - name: Start Backend
-    run: |
-      cd backend
-      node server.js &
-      sleep 5
+      - name: Start Backend
+        run: |
+          cd backend
+          node server.js &
+          sleep 5
 
-  - name: Install Frontend Dependencies
-    run: |
-      cd frontend
-      npm install
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install
 
-  - name: Build Frontend
-    run: |
-      cd frontend
-      npm run build
-```
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
